@@ -1,0 +1,35 @@
+{
+	"name": "smartico-canada-cronjob",
+	"description": "Update user profiles with new fields \"PeriodicMarketCommentary\" and \"AnalysisPreference\".",
+	"main": "index.js",
+	"repository": "git@gitlab.com:finonex/rnd/growth/smartico-canada-cronjob.git",
+	"author": "ori kosman <ori.kosman@finonex.com>",
+	"license": "UNLICENSED",
+	"version": "1.0.0",
+  "scripts": {
+    "start": "node index.js",
+		"test": "jest --colors --verbose --maxWorkers=50%",
+		"coverage": "jest -i --coverage",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"prettier": "prettier --check **/*.js",
+		"prettier:fix": "prettier --write **/*.js"
+  },
+	"dependencies": {
+		"axios": "^1.5.0",
+		"dotenv": "^16.3.1",
+		"jest": "^29.6.2"
+	},
+	"devDependencies": {
+		"globals": "^13.24.0",
+		"@eslint/js": "^8.56.0",
+		"eslint": "^8.56.0",
+		"eslint-plugin-jest": "^27.6.0",
+		"eslint-plugin-security": "^2.1.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-prettier": "^5.1.2",
+		"prettier": "^3.1.1"
+	}
+}
