@@ -5,12 +5,7 @@ module.exports = {
 	},
 	restoreMocks: true,
 	testTimeout: 20000,
-	coveragePathIgnorePatterns: [
-		'node_modules',
-		'src/config',
-		'src/app.js',
-		'tests',
-	],
+	coveragePathIgnorePatterns: ['node_modules', 'src/config', 'tests'],
 	coverageReporters: ['text', 'lcov', 'clover', 'html'],
 	coverageDirectory: 'coverage',
 };
