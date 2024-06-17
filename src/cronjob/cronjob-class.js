@@ -1,24 +1,20 @@
 const { AppError } = require('../errors');
 
 class CronJob {
-	constructor(jobName, { prometheus = undefined } = {}) {
+	constructor(jobName) {
 		this.jobName = jobName;
-		this.prometheus = prometheus;
 	}
 
 	async run(params) {
 		let errType = '';
 
 		try {
-			logger.info(`Cronjob ${this.jobName} started`);
-			this.prometheus?.counters.cronjobStartedCounter.inc(
-				this.prometheusLabels
-			);
+			console.info(`Cronjob ${this.jobName} started`);
 
 			await this._run(params);
-			logger.info(`Cronjob ${this.jobName} completed successfully`);
+			console.info(`Cronjob ${this.jobName} completed successfully`);
 		} catch (err) {
-			logger.error(
+			console.error(
 				`Unexpected error occurred during cronjob ${this.jobName}: ${err}`
 			);
 			errType = err.type || 'UNKNOWN';
@@ -35,30 +31,21 @@ class CronJob {
 	}
 
 	async onCompletion(errType = undefined) {
-		logger.error(
+		console.error(
 			`Completion workflow started for cronjob ${this.jobName} after ${errType ? `error type: ${errType}` : 'successful run !'}`
 		);
 
 		if (errType) {
-			this.prometheus?.counters.cronjobFailedCounter.inc({
-				...this.prometheusLabels,
-				err_type: errType,
-			});
-		} else {
-			this.prometheus?.counters.cronjobSuccessCounter.inc(
-				this.prometheusLabels
-			);
+			console.error(errType);
 		}
 
-		await this.prometheus?.client?.pushToPushGateway(this.jobName);
-
-		logger.info(`Completion workflow completed for cronjob ${this.jobName}`);
+		console.info(`Completion workflow completed for cronjob ${this.jobName}`);
 	}
 
 	async shutdown(errType) {
-		logger.info('CronJob shutdown requested');
+		console.info('CronJob shutdown requested');
 		await this.onCompletion(errType);
-		logger.info('CronJob shutdown completed');
+		console.info('CronJob shutdown completed');
 	}
 }
 

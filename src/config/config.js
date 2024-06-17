@@ -10,14 +10,12 @@ const envVarsSchema = Joi.object()
 			.valid('development', 'staging', 'production')
 			.required()
 			.description('This environment is stating the running mode.'),
+		SMARTICO_API_URL: Joi.string().required(),
 		SMARTICO_API_KEY: Joi.string().required(),
-		SMARTICO_ACCOUNTS_URL: Joi.string().required(),
-		SMARTICO_ACCOUNTS_API_KEY: Joi.string().required(),
-		SMARTICO_ACCOUNTS_ITEMS_LIMIT: Joi.number().default(100),
-		SMARTICO_ACCOUNTS_LAST_MODIFIED_IN_MINUTES: Joi.number()
-			.default(120)
-			.required(),
-		GET_BRAND_NAME_URL: Joi.string(),
+		ACCOUNTS_API_URL: Joi.string().required(),
+		ACCOUNTS_API_KEY: Joi.string().required(),
+		ACCOUNTS_ITEMS_LIMIT: Joi.number().default(100),
+		ACCOUNTS_LAST_MODIFIED_IN_MINUTES: Joi.number().default(120).required(),
 	})
 	.unknown();
 
@@ -31,12 +29,10 @@ if (error) {
 
 module.exports = {
 	env: envVars.NODE_ENV,
-	cronjob: {
-		smarticoApiKey: envVars.SMARTICO_API_KEY,
-		smarticoApiUrl: envVars.SMARTICO_ACCOUNTS_URL,
-		smarticoApiKey: envVars.SMARTICO_ACCOUNTS_API_KEY,
-		smarticoItemsLimit: envVars.SMARTICO_ACCOUNTS_ITEMS_LIMIT,
-		lastModifiedDateInMinutes:
-			envVars.SMARTICO_ACCOUNTS_LAST_MODIFIED_IN_MINUTES,
-	},
+	smarticoApiKey: envVars.SMARTICO_API_KEY,
+	smarticoApiUrl: envVars.SMARTICO_API_URL,
+	accountsApiUrl: envVars.ACCOUNTS_API_URL,
+	accountsApiKey: envVars.ACCOUNTS_API_KEY,
+	accountsItemsLimit: envVars.ACCOUNTS_ITEMS_LIMIT,
+	lastModifiedDateInMinutes: envVars.ACCOUNTS_LAST_MODIFIED_IN_MINUTES,
 };

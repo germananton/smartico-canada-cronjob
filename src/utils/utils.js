@@ -1,4 +1,4 @@
-function classNameToSnakeUpperCase(className) {
+const classNameToSnakeUpperCase = (className) => {
 	if (!className) {
 		return '';
 	}
@@ -6,6 +6,6 @@ function classNameToSnakeUpperCase(className) {
 		.replace(/([A-Z])/g, '_$1')
 		.toUpperCase()
 		.slice(1);
-}
+};
 
 module.exports = { classNameToSnakeUpperCase };
