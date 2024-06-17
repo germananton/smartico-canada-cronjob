@@ -2,6 +2,13 @@ const axios = require('axios');
 const CronJob = require('./cronjob-class');
 const smarticoJobUtils = require('../utils/smartico-job-utils');
 const config = require('../config/config');
+const {
+	AppError,
+	BadRequestError,
+	ForbiddenError,
+	UnauthorizedError,
+	ServerError,
+} = require('../errors');
 
 class SmarticoDataSending extends CronJob {
 	constructor() {
@@ -9,8 +16,8 @@ class SmarticoDataSending extends CronJob {
 	}
 
 	async _run() {
-		// fetch user accounts from the last 2 hours
-		let userAccounts = await smarticoJobUtils.fetchUserAccounts();
+		// fetch user accounts from the last x hours
+		const userAccounts = await smarticoJobUtils.fetchUserAccounts();
 
 		// Build payload to send to Smartico
 		if (!userAccounts.length) return;
@@ -21,10 +28,9 @@ class SmarticoDataSending extends CronJob {
 				return smarticoJobUtils.composeSmarticoPayload(accountDetails);
 			});
 
-			console.debug(`Generated payloads for Smartico`);
+			console.debug(`Generated ${payloads.length} payloads for Smartico`);
 		} catch (error) {
-			// TODO: handle errors
-			console.error(error.message);
+			throw new AppError(error.message, true, error.stack);
 		}
 
 		// Send payload to Smartico
@@ -35,6 +41,7 @@ class SmarticoDataSending extends CronJob {
 			};
 
 			for (let index = 0; index < payloads.length; index++) {
+				// eslint-disable-next-line no-await-in-loop
 				const response = await axios.post(
 					config.smarticoApiUrl,
 					payloads[index],
@@ -48,14 +55,52 @@ class SmarticoDataSending extends CronJob {
 						`Failed to send request to Smartico. \nerror code:${response.data.errCode}, message: ${response.data.errMsg}`
 					);
 
-					return;
+					continue;
 				}
 
-				console.info(response.data);
+				console.debug(response.data);
 			}
 		} catch (error) {
-			// TODO: handle errors
 			console.error(error.message);
+
+			const status = error.response.status;
+			const errorMsg = Object.values(
+				error.response?.data?.failed_events
+			)[0].toString();
+
+			if (status === 400) {
+				throw new BadRequestError(
+					`Request to Smartico with BAD_REQUEST - ${errorMsg || 'UNKNOWN ERROR'}`,
+					error.stack
+				);
+			}
+
+			if (status === 401) {
+				throw new UnauthorizedError(
+					`Unauthorized request sent to Smartico`,
+					error.stack
+				);
+			}
+
+			if (status === 403) {
+				throw new ForbiddenError(
+					`Forbidden request sent to Smartico`,
+					error.stack
+				);
+			}
+
+			if (status >= 500 && status <= 599) {
+				throw new ServerError(
+					`Request to Smartico failed with internal server error: ${errorMsg || 'UNKNOWN ERROR'}`,
+					error.stack
+				);
+			}
+
+			throw new AppError(
+				`Smartico error code: ${status} error: ${errorMsg || 'UNKNOWN ERROR'}`,
+				true,
+				error.stack
+			);
 		}
 	}
 
