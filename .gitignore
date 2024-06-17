@@ -1,5 +1,12 @@
-# Dependencies
+#yarn modern
 node_modules
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # yarn error logs
 yarn-error.log
