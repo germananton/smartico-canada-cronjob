@@ -1,0 +1,13 @@
+stages:
+  - skip-pipeline
+#
+# This is a hack in case there is no runnable job for merge requests
+#
+skip-job:
+  stage: skip-pipeline
+  script:
+    - echo "Skipping pipelines..."
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /no-pipeline/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
