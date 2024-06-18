@@ -35,41 +35,41 @@ const fetchUserAccounts = async (
 			`${config.accountsApiUrl}?${queryParams}`,
 			{ headers }
 		);
+
+		if (!response) {
+			return [];
+		}
 		return response.data;
 	} catch (error) {
-		console.error(
-			`Error occurred while fetching accounts: \n${error.message}`,
-			error
-		);
-
 		throw new AppError(
-			`Error occurred while fetching accounts: \n${error.message}`,
+			`Error occurred while fetching accounts: \n${error.title}`,
 			error.stack
 		);
 	}
 };
 
 const getBrandFromAccountDetails = (siteName, accountId) => {
+	let brandName = 'UNDEFINED';
+
 	if (!siteName) {
 		console.error(`Could not find brand for account: ${accountId}`);
-		return;
+		return brandName;
 	}
-
-	let brandName = 'UNDEFINED';
 
 	try {
 		siteName = siteName.split(/[ .]/g)[0].toLowerCase();
 
 		if (BRANDS.includes(siteName)) {
-			// Capitalize the first letter unless it's 'gcmasia' which should remain lowercased
+			// Capitalize the first letter only if it's 'fortrade'
 			brandName =
-				siteName === 'gcmasia'
-					? 'gcmasia'
-					: siteName.charAt(0).toUpperCase() + siteName.slice(1);
+				siteName === 'fortrade'
+					? siteName.charAt(0).toUpperCase() + siteName.slice(1)
+					: siteName;
 		}
 	} catch (error) {
+		console.error(`Unable to find brand name\n${error.message}`, error);
 		throw new AppError(
-			`Unable to find the brand name from account details with ID: ${accountId}, siteName = ${siteName}`,
+			`Unable to find brand name from account details with ID: ${accountId}, siteName = ${siteName}`,
 			error.stack
 		);
 	}
@@ -77,20 +77,20 @@ const getBrandFromAccountDetails = (siteName, accountId) => {
 	return brandName;
 };
 
-const composeSmarticoPayload = (fields) => {
+const composeSmarticoPayload = (accountDetails, eventDate) => {
 	const eid = crypto.randomUUID();
 	const request = {
 		eid,
-		event_date: dayjs(dayjs()).valueOf(),
+		event_date: eventDate,
 		ext_brand_id: getBrandFromAccountDetails(
-			fields?.siteName,
-			fields?.accountId
+			accountDetails?.siteName,
+			accountDetails?.accountId
 		),
-		user_ext_id: fields.accountId,
+		user_ext_id: accountDetails.accountId,
 		event_type: 'update_profile',
 		payload: {
-			fn_periodic_market_commentary: fields.PeriodicMarketCommentary,
-			fn_analysis_preference: fields.AnalysisPreference,
+			fn_periodic_market_commentary: accountDetails.PeriodicMarketCommentary,
+			fn_analysis_preference: accountDetails.AnalysisPreference,
 		},
 	};
 
